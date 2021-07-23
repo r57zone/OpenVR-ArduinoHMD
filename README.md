@@ -9,7 +9,7 @@ Driver for OpenVR / SteamVR, which allows to track the head, using any Arduino r
 2. Install [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
 3. Unpack the driver to a folder "...\Steam\steamapps\common\SteamVR\drivers". Configure the necessary parameters (`windowX`, `windowY`, `windowWidth`, `windowHeight` and others), in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\arduinohmd\resources\settings\default.vrsettings". 
 4. Launch SteamVR and in the SteamVR status window click -> Room Settings -> Small Room -> Calibration -> 170 cm. The SteamVR demo can be closed, and the launch of SteamVR Home can be disabled in the SteamVR settings.
-5. Put on the HMD, if necessary, centering them with key (by default, "Numpad 5" or "CTRL + ALT + R", can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.RU.md#%D0%BA%D0%BE%D0%B4%D1%8B)).
+5. Put on the HMD, if necessary, centering them with key (by default, "Numpad 5" or "CTRL + ALT + R", can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)).
 
 If you are using an Android smartphone, then it will probably be easier to use [OpenTrack driver](https://github.com/r57zone/OpenVR-ArduinoHMD), there you can also read instructions about streaming images to your smartphone.
 
@@ -29,8 +29,8 @@ There is a ready-made Arduino firmware for[MPU 6050 GY-521](http://ali.pub/2oy76
 Name | Description
 ------------ | -------------
 COMPort | The number of the Arduino COM port can be found in the Devices Manager.
-CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.RU.md#%D0%BA%D0%BE%D0%B4%D1%8B)).
-CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.RU.md#%D0%BA%D0%BE%D0%B4%D1%8B)). Необходимо для связи с другими драйверами, например, используя контроллеры Razer Hydra и используя [этот драйвер](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) можно приседать.
+CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)).
+CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
 CrouchOffset | The height of the crouch at the touch of a button.
 DistanceBetweenEyes | The distance between stereo images, the larger the closer.
 DistortionK1, DistortionK2 | Lens distortion factors.
@@ -46,12 +46,12 @@ DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to s
 ## Hotkeys
 Name | Description
 ------------ | -------------
-**Numpad 5**, **CTRL + ALT + R** | Centering the picture in the center.
-**Page Up, Page Down** | Rise or decline.
-**Numpad 8, Numpad 2, Numpad 4, Numpad 6** | Move forward, backward, left, right.
-**Numpad 1, Numpad 3** | Change Yaw.
-**Numpad 7, Numpad 9** | Change Roll.
-**Numpad -** | Resetting movements and lifting.
+Numpad 5, CTRL + ALT + R | Centering the picture.
+Page Up, Page Down | Rise or decline.
+Numpad 8, 2, 4, 6 | Move forward, backward, left, right.
+Numpad 1, 3 | Change Yaw.
+Numpad 7, 9 | Change Roll.
+Numpad - | Resetting movements and lifting.
 
 ## Known Issues
 1. Red screen. You can fix this by selecting the "Headset Window" window.
