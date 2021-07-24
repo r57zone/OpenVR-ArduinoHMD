@@ -11,7 +11,7 @@ Driver for OpenVR / SteamVR, which allows to track the head, using any Arduino r
 4. Launch SteamVR and in the SteamVR status window click -> Room Settings -> Small Room -> Calibration -> 170 cm. The SteamVR demo can be closed, and the launch of SteamVR Home can be disabled in the SteamVR settings.
 5. Put on the HMD, if necessary, centering them with key (by default, "Numpad 5" or "CTRL + ALT + R", can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)).
 
-If you are using an Android smartphone, then it will probably be easier to use [OpenTrack driver](https://github.com/r57zone/OpenVR-ArduinoHMD), there you can also read instructions about streaming images to your smartphone.
+If you are using an Android smartphone, then it will probably be easier to use [OpenTrack driver](https://github.com/r57zone/OpenVR-OpenTrack), there you can also read instructions about streaming images to your smartphone.
 
 ## Arduino & rotation trackers
 To track the turns of the head, you will need to buy [Arduino Nano](http://ali.pub/2oy73f) and connect a board with rotation sensors to it, for example, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 or any other if there is a firmware with the output of Yaw, Pitch, Roll values and calibration. The data output is binary (3 float values), an example can be viewed [here](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino).
@@ -21,7 +21,7 @@ It is important to note here that there are new revisions of GY-85 that are inco
 
 ![](https://user-images.githubusercontent.com/9499881/52521767-bd593480-2c95-11e9-923a-648a3018d131.png)
 
-There is a ready-made Arduino firmware for[MPU 6050 GY-521](http://ali.pub/2oy76c). It is necessary to solder according to the scheme, [download libraries](https://github.com/r57zone/X360Advance/releases/download/1.0/Arduino.Firmware.MPU6050.X360Advance.zip), unpack them into the "libraries" folder of the Arduino IDE. Put the tracker on a flat surface, flash the sketch "MPU6050_calibration.ino" and get the data for calibration. Next, you need to flash the sketch ["HMD_MPU6050_DMP6.ino"](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/HMD_MPU6050_DMP6.ino), by entering the calibration data already received into it.
+There is a ready-made Arduino firmware for [MPU 6050 GY-521](http://ali.pub/2oy76c). It is necessary to solder according to the scheme, [download libraries](https://github.com/r57zone/X360Advance/releases/download/1.0/Arduino.Firmware.MPU6050.X360Advance.zip), unpack them into the "libraries" folder of the Arduino IDE. Put the tracker on a flat surface, flash the sketch "MPU6050_calibration.ino" and get the data for calibration. Next, you need to flash the sketch ["HMD_MPU6050_DMP6.ino"](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/HMD_MPU6050_DMP6.ino), by entering the calibration data already received into it.
 
 ![](https://user-images.githubusercontent.com/9499881/52521728-e200dc80-2c94-11e9-9628-68ea3ef3dacd.png)
 
