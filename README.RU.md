@@ -16,7 +16,7 @@
 ## Arduino и трекеры вращения
 Для отслеживания поворотов головы понадобится купить [Arduino Nano](http://ali.pub/2oy73f) и подключить к ней плату с датчиками вращения, например, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 или любую другую при наличии прошивки с выводом значений Yaw, Pitch, Roll (Рысканье, Тангаж, Крен), и калибровкой. Вывод данных происходит бинарный (3 float значения), пример можно посмотреть [тут](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino).
 
-Готовая прошивка Arduino есть для MPU 3200 GY-85, называется она [Razor AHRS](https://github.com/Razor-AHRS/razor-9dof-ahrs/tree/master/Arduino). Вместе с ней идет программа для калибровки и демонстрации. После калибровки замените файл "Output.ino", в папке с прошивкой, на [этот](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Razor_AHRS/Output.ino).
+Готовая прошивка Arduino есть для [MPU 3200 GY-85](http://alli.pub/5wxnyl), называется она [Razor AHRS](https://github.com/Razor-AHRS/razor-9dof-ahrs/tree/master/Arduino). Вместе с ней идет программа для калибровки и демонстрации. После калибровки замените файл "Output.ino", в папке с прошивкой, на [этот](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Razor_AHRS/Output.ino).
 Здесь важно отметить, что появились новые ревизии GY-85, которые несовместимы с этой прошивкой. Прошивкой поддерживаются следующие сенсоры: акселерометр ADXL345, гироскоп ITG-3200 и магнитометры HMC5843, HMC5883L. Инструкцию по калибровке можно найти на [youtube](https://www.youtube.com/watch?v=J7K_TnzQBZk).
 
 ![](https://user-images.githubusercontent.com/9499881/52521767-bd593480-2c95-11e9-923a-648a3018d131.png)
