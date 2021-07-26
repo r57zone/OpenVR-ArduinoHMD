@@ -248,7 +248,7 @@ public:
 		m_bStereoMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_Stereo_Bool);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_DebugMode_Bool);
 
-		m_ñenteringKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CenteringKey_Int32);
+		m_centeringKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CenteringKey_Int32);
 		m_crouchOffset = vr::VRSettings()->GetFloat(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchOffset_Float);
 		m_crouchPressKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchPressKey_Int32);
 
@@ -505,7 +505,7 @@ public:
 			}
 
 			// Centering
-			if ((GetAsyncKeyState(m_ñenteringKey) & 0x8000) != 0 || ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && (GetAsyncKeyState(VK_MENU) & 0x8000) != 0 && (GetAsyncKeyState('R') & 0x8000) != 0))
+			if ((GetAsyncKeyState(m_centeringKey) & 0x8000) != 0 || ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && (GetAsyncKeyState(VK_MENU) & 0x8000) != 0 && (GetAsyncKeyState('R') & 0x8000) != 0))
 				SetCentering();
 
 			// Set head tracking rotation
@@ -570,7 +570,7 @@ private:
 
 	int32_t m_crouchPressKey;
 	float m_crouchOffset;
-	int32_t m_ñenteringKey;
+	int32_t m_centeringKey;
 };
 
 //-----------------------------------------------------------------------------
