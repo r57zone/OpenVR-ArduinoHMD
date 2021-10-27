@@ -175,6 +175,8 @@ void ArduinoIMURead()
 					HMDInitCentring = true;
 				}
 		}
+
+		if (bytesRead == 0) Sleep(1);
 	}
 }
 
@@ -505,7 +507,7 @@ public:
 			}
 
 			// Centering
-			if ((GetAsyncKeyState(m_centeringKey) & 0x8000) != 0 || ((GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && (GetAsyncKeyState(VK_MENU) & 0x8000) != 0 && (GetAsyncKeyState('R') & 0x8000) != 0))
+			if ( (GetAsyncKeyState(m_centeringKey) & 0x8000) != 0 || ( (GetAsyncKeyState(VK_CONTROL) & 0x8000) != 0 && (GetAsyncKeyState(VK_MENU) & 0x8000) != 0 && (GetAsyncKeyState('R') & 0x8000) != 0) )
 				SetCentering();
 
 			// Set head tracking rotation
