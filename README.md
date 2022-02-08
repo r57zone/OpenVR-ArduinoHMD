@@ -25,6 +25,7 @@ There is a ready-made Arduino firmware for [MPU 6050 GY-521](http://ali.pub/2oy7
 
 ![](https://user-images.githubusercontent.com/9499881/52521728-e200dc80-2c94-11e9-9628-68ea3ef3dacd.png)
 
+The speed should be changed to `115200` if a different one is set by default.
 ## Configuration file options
 Name | Description
 ------------ | -------------
