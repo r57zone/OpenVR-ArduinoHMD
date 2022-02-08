@@ -29,7 +29,7 @@ The speed should be changed to `115200` if a different one is set by default.
 ## Configuration file options
 Name | Description
 ------------ | -------------
-COMPort | The number of the Arduino COM port can be found in the Devices Manager.
+COMPort | The number of the Arduino COM port can be found in the Devices Manager. Use ports from 1 to 9, change it in the device properties if necessary.
 CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)).
 CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
 CrouchOffset | The height of the crouch at the touch of a button.
