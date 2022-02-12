@@ -181,8 +181,8 @@ void ArduinoIMURead()
 }
 
 void ArduinoIMUStart() {
-	TCHAR PortName[15] = { 0 };
-	_stprintf(PortName, TEXT("COM%d"), comPortNumber);
+	TCHAR PortName[32] = { 0 };
+	_stprintf(PortName, TEXT("\\\\.\\COM%d"), comPortNumber);
 	//CString sPortName;
 	//sPortName.Format(_T("COM%d"), IniFile.ReadInteger("Main", "ComPort", 2));
 
