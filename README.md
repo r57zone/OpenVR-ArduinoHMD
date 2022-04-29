@@ -13,6 +13,10 @@ Driver for OpenVR / SteamVR, which allows to track the head, using any Arduino r
 
 If you are using an Android smartphone, then it will probably be easier to use [OpenTrack driver](https://github.com/r57zone/OpenVR-OpenTrack), there you can also read instructions about streaming images to your smartphone.
 
+
+
+You can quick turn on and turn off the extended VR monitor of the HMD using the `HMD Assistant` utility or `[MultiMonitorTool](https://www.nirsoft.net/utils/multi_monitor_tool.html)`.
+
 ## Arduino & rotation trackers
 To track the turns of the head, you will need to buy [Arduino Nano](http://ali.pub/2oy73f) and connect a board with rotation sensors to it, for example, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 or any other if there is a firmware with the output of Yaw, Pitch, Roll values and calibration. The data output is binary (3 float values), an example can be viewed [here](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino).
 
