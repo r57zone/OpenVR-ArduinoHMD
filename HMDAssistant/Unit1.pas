@@ -207,7 +207,7 @@ end;
 
 procedure TMain.EditConfigBtnClick(Sender: TObject);
 begin
-  if (EditorPath = '') and (FileExists(EditorPath)) then
+  if (EditorPath = '') or (FileExists(EditorPath) = false) then
     ShellExecute(Handle, 'open', PChar(ConfigPath), nil, nil, SW_SHOWNORMAL)
   else
     ShellExecute(Handle, 'open', PChar(EditorPath), PChar(ConfigPath), nil, SW_SHOWNORMAL);
