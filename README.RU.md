@@ -15,7 +15,7 @@
 
 
 
-Быстро включать и выключать расширенный VR монитор шлема можно, с помощью оболочки `HMD Assistant` или `[MultiMonitorTool](https://www.nirsoft.net/utils/multi_monitor_tool.html)`.
+Быстро включать и выключать расширенный VR монитор шлема можно, с помощью оболочки `HMD Assistant` или [MultiMonitorTool](https://www.nirsoft.net/utils/multi_monitor_tool.html).
 
 ## Arduino и трекеры вращения
 Для отслеживания поворотов головы понадобится купить [Arduino Nano](http://ali.pub/2oy73f) и подключить к ней плату с датчиками вращения, например, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 или любую другую при наличии прошивки с выводом значений Yaw, Pitch, Roll (Рысканье, Тангаж, Крен), и калибровкой. Вывод данных происходит бинарный (3 float значения), пример можно посмотреть [тут](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino).
