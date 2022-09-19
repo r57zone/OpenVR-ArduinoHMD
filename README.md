@@ -30,10 +30,11 @@ There is a ready-made Arduino firmware for [MPU 6050 GY-521](http://ali.pub/2oy7
 ![](https://user-images.githubusercontent.com/9499881/52521728-e200dc80-2c94-11e9-9628-68ea3ef3dacd.png)
 
 The speed should be changed to `115200` if a different one is set by default.
+
 ## Configuration file options
 Name | Description
 ------------ | -------------
-COMPort | The number of the Arduino COM port can be found in the Devices Manager. Use ports from 1 to 9, change it in the device properties if necessary.
+COMPort | The number of the Arduino COM port can be found in the Devices Manager. Use ports from `1` to `9`, change it in the device properties if necessary.
 CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)).
 CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired key code](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.md#codes)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
 CrouchOffset | The height of the crouch at the touch of a button.
@@ -46,7 +47,8 @@ displayFrequency | Screen refresh rate.
 renderWidth, renderHeight | Image rendering resolution for one eye.
 windowWidth, windowHeight | Height and width of the displayed window.
 windowX, windowY | Window offset is required for display on other monitors. For example, to display on the second display, which is displayed on the right, you need to specify the value 1920 (provided that the first display has a resolution of 1920 by 1080). The exact data can be viewed using the [MultiMonitorTool utility](https://www.nirsoft.net/utils/multi_monitor_tool.html), and also with it you can turn off and turn on the second monitor via a bat file.
-DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to set it to false (disable).
+DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to set it to `false` (disable).
+ArduinoRequire | Requires a connected Arduino to start the driver. The parameter is necessary for quick tests of controllers, so as not to connect and put on a hmd for tests. To disable, change to `false`.
 
 ## Hotkeys
 Name | Description
@@ -54,8 +56,8 @@ Name | Description
 Numpad 5, CTRL + ALT + R | Centering the picture.
 Page Up, Page Down | Rise or decline.
 Numpad 8, 2, 4, 6 | Move forward, backward, left, right.
-Numpad 1, 3 | Change Yaw.
-Numpad 7, 9 | Change Roll.
+Numpad 1, 3 | Change yaw.
+Numpad 7, 9 | Change roll.
 Numpad - | Resetting movements and lifting.
 
 ## Known Issues

@@ -81,6 +81,7 @@ static const char * const k_pch_arduinoHMD_DebugMode_Bool = "DebugMode";
 
 // arduino hmd settings
 static const char * const k_pch_arduinoHMD_Section = "arduinohmd";
+static const char * const k_pch_arduinoHMD_ArduinoRequire_Bool = "ArduinoRequire";
 static const char * const k_pch_arduinoHMD_COM_port_Int32 = "COMPort";
 static const char * const k_pch_arduinoHMD_CenteringKey_Int32 = "CenteringKey";
 static const char * const k_pch_arduinoHMD_CrouchPressKey_Int32 = "CrouchPressKey";
@@ -88,7 +89,7 @@ static const char * const k_pch_arduinoHMD_CrouchOffset_Float = "CrouchOffset";
 
 HANDLE hSerial;
 int32_t comPortNumber;
-bool HMDConnected = false, HMDInitCentring = false;
+bool HMDConnected = false, HMDInitCentring = false, ArduinoNotRequire = false;
 float ArduinoIMU[3] = { 0, 0, 0 }, yprOffset[3] = { 0, 0, 0 }; // Yaw, Pitch, Roll
 float LastArduinoIMU[3] = { 0, 0, 0 };
 double fPos[3] = { 0, 0, 0 };
@@ -254,13 +255,13 @@ public:
 		m_crouchOffset = vr::VRSettings()->GetFloat(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchOffset_Float);
 		m_crouchPressKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchPressKey_Int32);
 
-		/*DriverLog( "driver_arduinohmd: Serial Number: %s\n", m_sSerialNumber.c_str() );
-		DriverLog( "driver_arduinohmd: Model Number: %s\n", m_sModelNumber.c_str() );
-		DriverLog( "driver_arduinohmd: Window: %d %d %d %d\n", m_nWindowX, m_nWindowY, m_nWindowWidth, m_nWindowHeight );
-		DriverLog( "driver_arduinohmd: Render Target: %d %d\n", m_nRenderWidth, m_nRenderHeight );
-		DriverLog( "driver_arduinohmd: Seconds from Vsync to Photons: %f\n", m_flSecondsFromVsyncToPhotons );
-		DriverLog( "driver_arduinohmd: Display Frequency: %f\n", m_flDisplayFrequency );
-		DriverLog( "driver_arduinohmd: IPD: %f\n", m_flIPD );*/
+		//DriverLog( "driver_arduinohmd: Serial Number: %s\n", m_sSerialNumber.c_str() );
+		//DriverLog( "driver_arduinohmd: Model Number: %s\n", m_sModelNumber.c_str() );
+		//DriverLog( "driver_arduinohmd: Window: %d %d %d %d\n", m_nWindowX, m_nWindowY, m_nWindowWidth, m_nWindowHeight );
+		//DriverLog( "driver_arduinohmd: Render Target: %d %d\n", m_nRenderWidth, m_nRenderHeight );
+		//DriverLog( "driver_arduinohmd: Seconds from Vsync to Photons: %f\n", m_flSecondsFromVsyncToPhotons );
+		//DriverLog( "driver_arduinohmd: Display Frequency: %f\n", m_flDisplayFrequency );
+		//DriverLog( "driver_arduinohmd: IPD: %f\n", m_flIPD );
 	}
 
 	virtual ~CDeviceDriver()
@@ -287,7 +288,7 @@ public:
 		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_IsOnDesktop_Bool, false );
 
 		// debug mode activate Windowed Mode (borderless fullscreen), lock to 30 FPS 
-		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, m_bDebugMode);
+		vr::VRProperties()->SetBoolProperty( m_ulPropertyContainer, Prop_DisplayDebugMode_Bool, m_bDebugMode );
 
 		// Icons can be configured in code or automatically configured by an external file "drivername\resources\driver.vrresources".
 		// Icon properties NOT configured in code (post Activate) are then auto-configured by the optional presence of a driver's "drivername\resources\driver.vrresources".
@@ -312,20 +313,14 @@ public:
 		// Thus "Prop_NamedIconPathDeviceAlertLow_String" in each model's block represent a specialization specific for that "model".
 		// Keys in "Model-v Defaults" are an example of mapping to the same states, and here all map to "Prop_NamedIconPathDeviceOff_String".
 		//
-		/*bool bSetupIconUsingExternalResourceFile = true;
-		if ( !bSetupIconUsingExternalResourceFile )
-		{
-			// Setup properties directly in code.
-			// Path values are of the form {drivername}\icons\some_icon_filename.png
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{sample}/icons/headset_sample_status_off.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{sample}/icons/headset_sample_status_searching.gif" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{sample}/icons/headset_sample_status_searching_alert.gif" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{sample}/icons/headset_sample_status_ready.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{sample}/icons/headset_sample_status_ready_alert.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceNotReady_String, "{sample}/icons/headset_sample_status_error.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceStandby_String, "{sample}/icons/headset_sample_status_standby.png" );
-			vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceAlertLow_String, "{sample}/icons/headset_sample_status_ready_low.png" );
-		}*/
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceOff_String, "{indexhmd}/icons/headset_status_off.png" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearching_String, "{indexhmd}/icons/headset_status_searching.gif" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceSearchingAlert_String, "{indexhmd}/icons/headset_status_searching_alert.gif" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReady_String, "{indexhmd}/icons/headset_status_ready.png" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceReadyAlert_String, "{indexhmd}/icons/headset_status_ready_alert.png" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceNotReady_String, "{indexhmd}/icons/headset_status_error.png" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceStandby_String, "{indexhmd}/icons/headset_status_standby.png" );
+		vr::VRProperties()->SetStringProperty( m_ulPropertyContainer, vr::Prop_NamedIconPathDeviceAlertLow_String, "{indexhmd}/icons/headset_status_standby.png" ); //headset_status_ready_low.png
 
 		return VRInitError_None;
 	}
@@ -466,13 +461,11 @@ public:
 	{
 		DriverPose_t pose = { 0 };
 
-		if (HMDConnected) {
+		if (HMDConnected || ArduinoNotRequire) {
 			pose.poseIsValid = true;
 			pose.result = TrackingResult_Running_OK;
 			pose.deviceIsConnected = true;
-		}
-		else
-		{
+		} else {
 			pose.poseIsValid = false;
 			pose.result = TrackingResult_Uninitialized;
 			pose.deviceIsConnected = false;
@@ -481,7 +474,7 @@ public:
 		pose.qWorldFromDriverRotation = HmdQuaternion_Init(1, 0, 0, 0);
 		pose.qDriverFromHeadRotation = HmdQuaternion_Init(1, 0, 0, 0);
 
-		if (HMDConnected) {
+		if (HMDConnected || ArduinoNotRequire) {
 
 			// Pos
 			if ((GetAsyncKeyState(VK_NUMPAD8) & 0x8000) != 0) fPos[2] -= StepPos;
@@ -518,14 +511,14 @@ public:
 													DegToRad( OffsetYPR(ArduinoIMU[1], yprOffset[1]) * -1 ));
 
 			//Set head position tracking
-			pose.vecPosition[0] = fPos[0]; //X
+			pose.vecPosition[0] = fPos[0]; // X
 
 			if ((GetAsyncKeyState(m_crouchPressKey) & 0x8000) != 0)
-				pose.vecPosition[1] = fPos[1] - m_crouchOffset; //Z
+				pose.vecPosition[1] = fPos[1] - m_crouchOffset; // Z
 			else
-				pose.vecPosition[1] = fPos[1]; //Z
+				pose.vecPosition[1] = fPos[1]; // Z
 			
-			pose.vecPosition[2] = fPos[2]; //Y
+			pose.vecPosition[2] = fPos[2]; // Y
 		}
 
 		return pose;
@@ -591,6 +584,7 @@ public:
 	virtual void EnterStandby()  {}
 	virtual void LeaveStandby()  {}
 
+
 private:
 	CDeviceDriver *m_pNullHmdLatest = nullptr;
 };
@@ -603,10 +597,12 @@ EVRInitError CServerDriver::Init( vr::IVRDriverContext *pDriverContext )
 	VR_INIT_SERVER_DRIVER_CONTEXT( pDriverContext );
 	//InitDriverLog( vr::VRDriverLog() );
 
+	ArduinoNotRequire = !vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRequire_Bool);
 	comPortNumber = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_COM_port_Int32);
+	
 	ArduinoIMUStart();
 
-	if (HMDConnected)
+	if (HMDConnected || ArduinoNotRequire)
 	{
 		m_pNullHmdLatest = new CDeviceDriver();
 		vr::VRServerDriverHost()->TrackedDeviceAdded(m_pNullHmdLatest->GetSerialNumber().c_str(), vr::TrackedDeviceClass_HMD, m_pNullHmdLatest);
@@ -625,7 +621,9 @@ void CServerDriver::Cleanup()
 		delete pArduinoReadThread;
 		pArduinoReadThread = nullptr;
 		CloseHandle(hSerial);
+	}
 
+	if (HMDConnected || ArduinoNotRequire) {
 		delete m_pNullHmdLatest;
 		m_pNullHmdLatest = NULL;
 	}
