@@ -4,7 +4,7 @@ interface
 
 uses
   Windows, Messages, SysUtils, Variants, Classes, Graphics, Controls, Forms,
-  Dialogs, Menus, ShellAPI, IniFiles;
+  Dialogs, Menus, ShellAPI, IniFiles, XPMan;
 
 type
   TMain = class(TForm)
@@ -21,6 +21,7 @@ type
     LowResBtn: TMenuItem;
     N5: TMenuItem;
     N0x01: TMenuItem;
+    XPManifest1: TXPManifest;
     procedure FormCreate(Sender: TObject);
     procedure CloseBtnClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -104,7 +105,7 @@ begin
   ConfigPath:=Ini.ReadString('SteamVR', 'ConfigPath', '');
   EditorPath:=Ini.ReadString('Main', 'EditorPath', '');
   if not FileExists(ConfigPath) then ShowMessage('Конфигурационный файл SteamVR не найден');
-  N0x01.Caption:=Ini.ReadString('Main', 'Resolution', '0x0');
+  N0x01.Caption:=Ini.ReadString('SteamVR', 'Resolution', '0x0');
   Application.Title:='HMD assistant - ' + N0x01.Caption;
   HMDMonitor:=Ini.ReadInteger('Main', 'HMDMonitor', 0);
   MaxResolution:=Ini.ReadString('SteamVR', 'MaxResolution', '2560x1440');

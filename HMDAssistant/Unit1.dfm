@@ -62,4 +62,8 @@ object Main: TMain
       OnClick = CloseBtnClick
     end
   end
+  object XPManifest1: TXPManifest
+    Left = 40
+    Top = 8
+  end
 end
