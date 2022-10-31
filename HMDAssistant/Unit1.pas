@@ -7,6 +7,15 @@ uses
   Dialogs, Menus, ShellAPI, IniFiles, XPMan;
 
 type
+  TDISPLAYCONFIG_PATH_INFO = record
+  end;
+  PDISPLAYCONFIG_PATH_INFO = ^TDISPLAYCONFIG_PATH_INFO;
+
+  TDISPLAYCONFIG_MODE_INFO = record
+  end;
+  PDISPLAYCONFIG_MODE_INFO = ^TDISPLAYCONFIG_MODE_INFO;
+
+type
   TMain = class(TForm)
     PopupMenu1: TPopupMenu;
     CloseBtn: TMenuItem;
@@ -22,6 +31,11 @@ type
     N5: TMenuItem;
     N0x01: TMenuItem;
     XPManifest1: TXPManifest;
+    ModesDisplayBtn: TMenuItem;
+    ExtendedBtn: TMenuItem;
+    CloneBtn: TMenuItem;
+    AboutBtn: TMenuItem;
+    N4: TMenuItem;
     procedure FormCreate(Sender: TObject);
     procedure CloseBtnClick(Sender: TObject);
     procedure FormClose(Sender: TObject; var Action: TCloseAction);
@@ -30,6 +44,9 @@ type
     procedure MaxResBtnClick(Sender: TObject);
     procedure LowResBtnClick(Sender: TObject);
     procedure EditConfigBtnClick(Sender: TObject);
+    procedure CloneBtnClick(Sender: TObject);
+    procedure ExtendedBtnClick(Sender: TObject);
+    procedure AboutBtnClick(Sender: TObject);
   private
     procedure DefaultHandler(var Message); override;
     procedure SetResolution(Res: string);
@@ -48,13 +65,19 @@ var
   ConfigPath, EditorPath: string;
   HMDMonitor: integer;
   MaxResolution, MiddleResolution, LowResolution: string;
-  CloseSteamVRAfterTurnOff: boolean;
+  ActivateExtendedMode, SetMaxResolution, CloneModeAfterTurnOff, CloseSteamVRAfterTurnOff: boolean;
 
-  IDS_RUN, IDS_STOP, IDS_CHANGE_RES: string;
+  IDS_RUN, IDS_STOP, IDS_CHANGE_RES, ID_ABOUT_TITLE, ID_LAST_UPDATE: string;
 
 implementation
 
 {$R *.dfm}
+
+const
+SDC_TOPOLOGY_CLONE = $00000002;
+SDC_TOPOLOGY_EXTEND = $00000004;
+SDC_APPLY = $00000080;
+function SetDisplayConfig(numPathArrayElements: integer; pathArray: PDISPLAYCONFIG_PATH_INFO; numModeInfoArrayElements: integer; modeInfoArray: PDISPLAYCONFIG_MODE_INFO; flags: integer): longint; stdcall; external 'user32.dll'; // taken from https://github.com/CMCHTPC/WindowsAPI/blob/master/Units/Win32.WinUser.pas
 
 procedure Tray(ActInd: integer);  //1 - Add, 2 - Update, 3 - Remove
 var
@@ -114,6 +137,9 @@ begin
   MaxResBtn.Caption:=MaxResolution;
   MiddleResBtn.Caption:=MiddleResolution;
   LowResBtn.Caption:=LowResolution;
+  SetMaxResolution:=Ini.ReadBool('Main', 'SetMaxResolution', false);
+  ActivateExtendedMode:=Ini.ReadBool('Main', 'ActivateExtendedMode', false);
+  CloneModeAfterTurnOff:=Ini.ReadBool('Main', 'CloneModeAfterTurnOff', false);
   CloseSteamVRAfterTurnOff:=Ini.ReadBool('Main', 'CloseSteamVRAfterTurnOff', true);
   Ini.Free;
   WM_TASKBARCREATED:=RegisterWindowMessage('TaskbarCreated');
@@ -129,13 +155,21 @@ begin
     IDS_RUN:='Включить';
     IDS_STOP:='Выключить';
     IDS_CHANGE_RES:='Разрешение изменено на';
+    ID_ABOUT_TITLE:='О программе...';
+    ID_LAST_UPDATE:='Последнее обновление:';
   end else begin
     IDS_RUN:='Turn on';
     IDS_STOP:='Turn off';
     RunStopBtn.Caption:=IDS_RUN;
     ResolutionsBtn.Caption:='Resolutions';
     SetupBtn.Caption:='Options';
+    ModesDisplayBtn.Caption:='Display modes';
+    ExtendedBtn.Caption:='Extended';
+    CloneBtn.Caption:='Clone';
     EditConfigBtn.Caption:='Edit';
+    ID_ABOUT_TITLE:='About...';
+    AboutBtn.Caption:=ID_ABOUT_TITLE;
+    ID_LAST_UPDATE:='Last update:';
     CloseBtn.Caption:='Exit';
     IDS_CHANGE_RES:='Resolution changed to';
   end;
@@ -173,10 +207,16 @@ begin
   if EnabledIcon = false then begin
     EnabledIcon:=true;
     RunStopBtn.Caption:=IDS_STOP;
-    ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/enable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE)
+    ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/enable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
+    if ActivateExtendedMode then
+      ExtendedBtn.Click;
+    if SetMaxResolution then
+      ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/setmax  \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
   end else begin
     EnabledIcon:=false;
     RunStopBtn.Caption:=IDS_RUN;
+    if CloneModeAfterTurnOff then
+      CloneBtn.Click;
     ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/disable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
     if CloseSteamVRAfterTurnOff then begin
       WinExec('taskkill /f /im vrserver.exe', SW_HIDE);
@@ -239,6 +279,24 @@ begin
   ConfigFile.SaveToFile(ConfigPath);
   ConfigFile.Free;
   Application.MessageBox(PChar(IDS_CHANGE_RES + ' "' + Res + '".'), PChar(Caption), MB_ICONINFORMATION);
+end;
+
+procedure TMain.CloneBtnClick(Sender: TObject);
+begin
+  SetDisplayConfig(0, nil, 0, nil, SDC_TOPOLOGY_CLONE or SDC_APPLY);
+end;
+
+procedure TMain.ExtendedBtnClick(Sender: TObject);
+begin
+  SetDisplayConfig(0, nil, 0, nil, SDC_TOPOLOGY_EXTEND or SDC_APPLY);
+end;
+
+procedure TMain.AboutBtnClick(Sender: TObject);
+begin
+  Application.MessageBox(PChar(Main.Caption + ' 1.2' + #13#10 +
+  ID_LAST_UPDATE + ' 19.10.2022' + #13#10 +
+  'https://r57zone.github.io' + #13#10 +
+  'r57zone@gmail.com'), PChar(ID_ABOUT_TITLE), MB_ICONINFORMATION);
 end;
 
 end.

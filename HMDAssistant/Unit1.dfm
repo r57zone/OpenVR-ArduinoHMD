@@ -1,6 +1,6 @@
 object Main: TMain
-  Left = 192
-  Top = 125
+  Left = 193
+  Top = 126
   Width = 336
   Height = 279
   Caption = 'HMD assistant'
@@ -54,7 +54,25 @@ object Main: TMain
         OnClick = EditConfigBtnClick
       end
     end
+    object ModesDisplayBtn: TMenuItem
+      Caption = #1056#1077#1078#1080#1084#1099' '#1101#1082#1088#1072#1085#1086#1074
+      object ExtendedBtn: TMenuItem
+        Caption = #1056#1072#1089#1096#1080#1088#1077#1085#1085#1099#1081
+        OnClick = ExtendedBtnClick
+      end
+      object CloneBtn: TMenuItem
+        Caption = #1055#1086#1074#1090#1086#1088#1103#1102#1097#1080#1081#1089#1103
+        OnClick = CloneBtnClick
+      end
+    end
     object N2: TMenuItem
+      Caption = '-'
+    end
+    object AboutBtn: TMenuItem
+      Caption = #1054' '#1087#1088#1086#1075#1088#1072#1084#1084#1077'...'
+      OnClick = AboutBtnClick
+    end
+    object N4: TMenuItem
       Caption = '-'
     end
     object CloseBtn: TMenuItem
