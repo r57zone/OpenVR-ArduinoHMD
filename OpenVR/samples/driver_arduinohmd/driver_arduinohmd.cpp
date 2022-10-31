@@ -372,10 +372,10 @@ public:
 		m_bStereoMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_Stereo_Bool);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_DebugMode_Bool);
 
-		vr::VRSettings()->GetString(k_pch_steamvr_Section, k_pch_arduinoHMD_CenteringKey_String, buf, sizeof(buf));
+		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CenteringKey_String, buf, sizeof(buf));
 		m_centeringKey = KeyNameToKeyCode(buf);
 
-		vr::VRSettings()->GetString(k_pch_steamvr_Section, k_pch_arduinoHMD_CrouchPressKey_String, buf, sizeof(buf));
+		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchPressKey_String, buf, sizeof(buf));
 		m_crouchPressKey = KeyNameToKeyCode(buf);
 
 		m_crouchOffset = vr::VRSettings()->GetFloat(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchOffset_Float);
