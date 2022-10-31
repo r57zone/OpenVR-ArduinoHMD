@@ -8,6 +8,7 @@
 #include <vector>
 #include <thread>
 #include <chrono>
+#include <algorithm>
 
 #if defined( _WINDOWS )
 #include <windows.h>
@@ -83,8 +84,8 @@ static const char * const k_pch_arduinoHMD_DebugMode_Bool = "DebugMode";
 static const char * const k_pch_arduinoHMD_Section = "arduinohmd";
 static const char * const k_pch_arduinoHMD_ArduinoRequire_Bool = "ArduinoRequire";
 static const char * const k_pch_arduinoHMD_COM_port_Int32 = "COMPort";
-static const char * const k_pch_arduinoHMD_CenteringKey_Int32 = "CenteringKey";
-static const char * const k_pch_arduinoHMD_CrouchPressKey_Int32 = "CrouchPressKey";
+static const char * const k_pch_arduinoHMD_CenteringKey_String = "CenteringKey";
+static const char * const k_pch_arduinoHMD_CrouchPressKey_String = "CrouchPressKey";
 static const char * const k_pch_arduinoHMD_CrouchOffset_Float = "CrouchOffset";
 
 HANDLE hSerial;
@@ -211,6 +212,126 @@ void ArduinoIMUStart() {
 	}
 }
 
+int KeyNameToKeyCode(std::string KeyName) {
+	std::transform(KeyName.begin(), KeyName.end(), KeyName.begin(), ::toupper);
+
+	if (KeyName == "NONE") return 0;
+
+	else if (KeyName == "MOUSE-LEFT-BTN") return VK_LBUTTON;
+	else if (KeyName == "MOUSE-RIGHT-BTN") return VK_RBUTTON;
+	else if (KeyName == "MOUSE-MIDDLE-BTN") return VK_MBUTTON;
+	else if (KeyName == "MOUSE-SIDE1-BTN") return VK_XBUTTON1;
+	else if (KeyName == "MOUSE-SIDE2-BTN") return VK_XBUTTON2;
+
+	else if (KeyName == "ESCAPE") return VK_ESCAPE;
+	else if (KeyName == "F1") return VK_F1;
+	else if (KeyName == "F2") return VK_F2;
+	else if (KeyName == "F3") return VK_F3;
+	else if (KeyName == "F4") return VK_F4;
+	else if (KeyName == "F5") return VK_F5;
+	else if (KeyName == "F6") return VK_F6;
+	else if (KeyName == "F7") return VK_F7;
+	else if (KeyName == "F8") return VK_F8;
+	else if (KeyName == "F9") return VK_F9;
+	else if (KeyName == "F10") return VK_F10;
+	else if (KeyName == "F11") return VK_F11;
+	else if (KeyName == "F12") return VK_F12;
+
+	else if (KeyName == "~") return 192;
+	else if (KeyName == "1") return '1';
+	else if (KeyName == "2") return '2';
+	else if (KeyName == "3") return '3';
+	else if (KeyName == "4") return '4';
+	else if (KeyName == "5") return '5';
+	else if (KeyName == "6") return '6';
+	else if (KeyName == "7") return '7';
+	else if (KeyName == "8") return '8';
+	else if (KeyName == "9") return '9';
+	else if (KeyName == "0") return '0';
+	else if (KeyName == "-") return 189;
+	else if (KeyName == "=") return 187;
+
+	else if (KeyName == "TAB") return VK_TAB;
+	else if (KeyName == "CAPS-LOCK") return VK_CAPITAL;
+	else if (KeyName == "SHIFT") return VK_SHIFT;
+	else if (KeyName == "CTRL") return VK_CONTROL;
+	else if (KeyName == "WIN") return VK_LWIN;
+	else if (KeyName == "ALT") return VK_MENU;
+	else if (KeyName == "SPACE") return VK_SPACE;
+	else if (KeyName == "ENTER") return VK_RETURN;
+	else if (KeyName == "BACKSPACE") return VK_BACK;
+
+	else if (KeyName == "Q") return 'Q';
+	else if (KeyName == "W") return 'W';
+	else if (KeyName == "E") return 'E';
+	else if (KeyName == "R") return 'R';
+	else if (KeyName == "T") return 'T';
+	else if (KeyName == "Y") return 'Y';
+	else if (KeyName == "U") return 'U';
+	else if (KeyName == "I") return 'I';
+	else if (KeyName == "O") return 'O';
+	else if (KeyName == "P") return 'P';
+	else if (KeyName == "[") return '[';
+	else if (KeyName == "]") return ']';
+	else if (KeyName == "A") return 'A';
+	else if (KeyName == "S") return 'S';
+	else if (KeyName == "D") return 'D';
+	else if (KeyName == "F") return 'F';
+	else if (KeyName == "G") return 'G';
+	else if (KeyName == "H") return 'H';
+	else if (KeyName == "J") return 'J';
+	else if (KeyName == "K") return 'K';
+	else if (KeyName == "L") return 'L';
+	else if (KeyName == ";") return 186;
+	else if (KeyName == "'") return 222;
+	else if (KeyName == "\\") return 220;
+	else if (KeyName == "Z") return 'Z';
+	else if (KeyName == "X") return 'X';
+	else if (KeyName == "C") return 'C';
+	else if (KeyName == "V") return 'V';
+	else if (KeyName == "B") return 'B';
+	else if (KeyName == "N") return 'N';
+	else if (KeyName == "M") return 'M';
+	else if (KeyName == "<") return 188;
+	else if (KeyName == ">") return 190;
+	else if (KeyName == "?") return 191;
+
+	else if (KeyName == "PRINTSCREEN") return VK_SNAPSHOT;
+	else if (KeyName == "SCROLL-LOCK") return VK_SCROLL;
+	else if (KeyName == "PAUSE") return VK_PAUSE;
+	else if (KeyName == "INSERT") return VK_INSERT;
+	else if (KeyName == "HOME") return VK_HOME;
+	else if (KeyName == "PAGE-UP") return VK_NEXT;
+	else if (KeyName == "DELETE") return VK_DELETE;
+	else if (KeyName == "END") return VK_END;
+	else if (KeyName == "PAGE-DOWN") return VK_PRIOR;
+
+	else if (KeyName == "UP") return VK_UP;
+	else if (KeyName == "DOWN") return VK_DOWN;
+	else if (KeyName == "LEFT") return VK_LEFT;
+	else if (KeyName == "RIGHT") return VK_RIGHT;
+
+	else if (KeyName == "NUM-LOCK") return VK_NUMLOCK;
+	else if (KeyName == "NUMPAD0") return VK_NUMPAD0;
+	else if (KeyName == "NUMPAD1") return VK_NUMPAD1;
+	else if (KeyName == "NUMPAD2") return VK_NUMPAD2;
+	else if (KeyName == "NUMPAD3") return VK_NUMPAD3;
+	else if (KeyName == "NUMPAD4") return VK_NUMPAD4;
+	else if (KeyName == "NUMPAD5") return VK_NUMPAD5;
+	else if (KeyName == "NUMPAD6") return VK_NUMPAD6;
+	else if (KeyName == "NUMPAD7") return VK_NUMPAD7;
+	else if (KeyName == "NUMPAD8") return VK_NUMPAD8;
+	else if (KeyName == "NUMPAD9") return VK_NUMPAD9;
+
+	else if (KeyName == "NUMPAD-DIVIDE") return VK_DIVIDE;
+	else if (KeyName == "NUMPAD-MULTIPLY") return VK_MULTIPLY;
+	else if (KeyName == "NUMPAD-MINUS") return VK_SUBTRACT;
+	else if (KeyName == "NUMPAD-PLUS") return VK_ADD;
+	else if (KeyName == "NUMPAD-DEL") return VK_DECIMAL;
+
+	else return 0;
+}
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -251,9 +372,13 @@ public:
 		m_bStereoMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_Stereo_Bool);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_DebugMode_Bool);
 
-		m_centeringKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CenteringKey_Int32);
+		vr::VRSettings()->GetString(k_pch_steamvr_Section, k_pch_arduinoHMD_CenteringKey_String, buf, sizeof(buf));
+		m_centeringKey = KeyNameToKeyCode(buf);
+
+		vr::VRSettings()->GetString(k_pch_steamvr_Section, k_pch_arduinoHMD_CrouchPressKey_String, buf, sizeof(buf));
+		m_crouchPressKey = KeyNameToKeyCode(buf);
+
 		m_crouchOffset = vr::VRSettings()->GetFloat(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchOffset_Float);
-		m_crouchPressKey = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchPressKey_Int32);
 
 		//DriverLog( "driver_arduinohmd: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_arduinohmd: Model Number: %s\n", m_sModelNumber.c_str() );

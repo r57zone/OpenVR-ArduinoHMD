@@ -7,9 +7,9 @@
 ## Настройка
 1. Подключите второй VR дисплей и установите расширенный режим в настройках мониторов.
 2. Установите [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
-3. Распаковать драйвер в папку "...\Steam\steamapps\common\SteamVR\drivers". Настройте необходимые параметры (`windowX`, `windowY`, `windowWidth`, `windowHeight` и другие), в файле конфигурации "...\Steam\steamapps\common\SteamVR\drivers\arduinohmd\resources\settings\default.vrsettings". 
+3. Распакуйте драйвер в папку "...\Steam\steamapps\common\SteamVR\drivers". Настройте необходимые параметры (`windowX`, `windowY`, `windowWidth`, `windowHeight` и другие), в файле конфигурации "...\Steam\steamapps\common\SteamVR\drivers\arduinohmd\resources\settings\default.vrsettings". 
 4. Запустите SteamVR и окне статуса SteamVR нажать -> Настройки комнаты -> Маленькая комната -> Калибровка -> 170 см. SteamVR демонстрация может быть закрыта, а запуск SteamVR Home может быть отключен в настройках SteamVR.
-5. Наденьте шлем, при необходимости отцентрируйте его, с помощью клавиши (по умолчанию "Numpad 5" или "CTRL + ALT + R", изменить кнопку можно в файле конфигурации, вписав [нужный код кнопки](https://github.com/r57zone/Half-Life-Alyx-novr/blob/master/BINDINGS.RU.md#%D0%BA%D0%BE%D0%B4%D1%8B)).
+5. Наденьте шлем, при необходимости отцентрируйте его, с помощью клавиши (по умолчанию `Numpad 5` или `CTRL + ALT + R`, изменить кнопку можно в файле конфигурации, вписав [нужнное название кнопки](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.RU.md)).
 
 Если вы используете Android смартфон, то вероятно будет удобнее использовать [OpenTrack драйвер](https://github.com/r57zone/OpenVR-OpenTrack), там же можно прочитать инструкции о стриминге изображения на смартфон.
 
