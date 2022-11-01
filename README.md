@@ -37,7 +37,7 @@ Name | Description
 COMPort | The number of the Arduino COM port can be found in the Devices Manager. Use ports from `1` to `9`, change it in the device properties if necessary.
 CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired name code](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)).
 CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired name code](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
-CrouchOffset | The height of the crouch at the touch of a button.
+CrouchOffset | The height of the crouch at the press of a button.
 DistanceBetweenEyes | The distance between stereo images, the larger the closer.
 DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.

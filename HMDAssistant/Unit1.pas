@@ -65,7 +65,7 @@ var
   ConfigPath, EditorPath: string;
   HMDMonitor: integer;
   MaxResolution, MiddleResolution, LowResolution: string;
-  ActivateExtendedMode, SetMaxResolution, CloneModeAfterTurnOff, CloseSteamVRAfterTurnOff: boolean;
+  ActivateExtendedMode, SetMaxResolution, CloseSteamVRAfterTurnOff: boolean;
 
   IDS_RUN, IDS_STOP, IDS_CHANGE_RES, ID_ABOUT_TITLE, ID_LAST_UPDATE: string;
 
@@ -74,10 +74,46 @@ implementation
 {$R *.dfm}
 
 const
-SDC_TOPOLOGY_CLONE = $00000002;
-SDC_TOPOLOGY_EXTEND = $00000004;
-SDC_APPLY = $00000080;
+  SDC_TOPOLOGY_CLONE = $00000002;
+  SDC_TOPOLOGY_EXTEND = $00000004;
+  SDC_APPLY = $00000080;
+
+  EDD_GET_DEVICE_INTERFACE_NAME = 1;
+  ENUM_REGISTRY_SETTINGS = DWORD(-2);
+
 function SetDisplayConfig(numPathArrayElements: integer; pathArray: PDISPLAYCONFIG_PATH_INFO; numModeInfoArrayElements: integer; modeInfoArray: PDISPLAYCONFIG_MODE_INFO; flags: integer): longint; stdcall; external 'user32.dll'; // taken from https://github.com/CMCHTPC/WindowsAPI/blob/master/Units/Win32.WinUser.pas
+
+procedure DisplayEnable(dwIndex: integer);
+var
+  Display: TDisplayDevice;
+  DevMode: TDevMode;
+begin
+  Display.cb:=SizeOf(TDisplayDevice);
+  EnumDisplayDevices(nil, dwIndex, Display, EDD_GET_DEVICE_INTERFACE_NAME);
+  EnumDisplaySettings(PChar(@Display.DeviceName[0]), ENUM_REGISTRY_SETTINGS, DevMode);
+  DevMode.dmFields:=DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT or DM_DISPLAYFREQUENCY or DM_DISPLAYFLAGS or DM_POSITION;
+  if (Display.StateFlags and DISPLAY_DEVICE_PRIMARY_DEVICE) <> DISPLAY_DEVICE_PRIMARY_DEVICE then begin
+    ChangeDisplaySettingsEx(PChar(@Display.DeviceName[0]), DevMode, 0, CDS_UPDATEREGISTRY or CDS_NORESET, nil);
+    ChangeDisplaySettingsEx(nil, PDevMode(nil)^, 0, 0, nil);
+  end;
+end;
+
+procedure DisplayDisable(dwIndex: integer);
+var
+  Display: TDisplayDevice;
+  DevMode: TDevMode;
+begin
+  Display.cb:=SizeOf(TDisplayDevice);
+  EnumDisplayDevices(nil, dwIndex, Display, EDD_GET_DEVICE_INTERFACE_NAME);
+  ZeroMemory(@DevMode, SizeOf(TDevMode));
+  DevMode.dmSize:=SizeOf(TDevMode);
+  DevMode.dmBitsPerPel:=32;
+  DevMode.dmFields:=DM_BITSPERPEL or DM_PELSWIDTH or DM_PELSHEIGHT or DM_DISPLAYFREQUENCY or DM_DISPLAYFLAGS or DM_POSITION;
+  if (Display.StateFlags and DISPLAY_DEVICE_PRIMARY_DEVICE) <> DISPLAY_DEVICE_PRIMARY_DEVICE then begin
+    ChangeDisplaySettingsEx(PChar(@Display.DeviceName[0]), DevMode, 0, CDS_UPDATEREGISTRY or CDS_NORESET, nil);
+    ChangeDisplaySettingsEx(nil, PDevMode(nil)^, 0, 0, nil);
+  end;
+end;
 
 procedure Tray(ActInd: integer);  //1 - Add, 2 - Update, 3 - Remove
 var
@@ -139,7 +175,6 @@ begin
   LowResBtn.Caption:=LowResolution;
   SetMaxResolution:=Ini.ReadBool('Main', 'SetMaxResolution', false);
   ActivateExtendedMode:=Ini.ReadBool('Main', 'ActivateExtendedMode', false);
-  CloneModeAfterTurnOff:=Ini.ReadBool('Main', 'CloneModeAfterTurnOff', false);
   CloseSteamVRAfterTurnOff:=Ini.ReadBool('Main', 'CloseSteamVRAfterTurnOff', true);
   Ini.Free;
   WM_TASKBARCREATED:=RegisterWindowMessage('TaskbarCreated');
@@ -207,7 +242,8 @@ begin
   if EnabledIcon = false then begin
     EnabledIcon:=true;
     RunStopBtn.Caption:=IDS_STOP;
-    ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/enable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
+    //ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/enable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
+    DisplayEnable(HMDMonitor - 1);
     if ActivateExtendedMode then
       ExtendedBtn.Click;
     if SetMaxResolution then
@@ -215,9 +251,8 @@ begin
   end else begin
     EnabledIcon:=false;
     RunStopBtn.Caption:=IDS_RUN;
-    if CloneModeAfterTurnOff then
-      CloneBtn.Click;
-    ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/disable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
+    DisplayDisable(HMDMonitor - 1);
+    //ShellExecute(Handle, 'open', PChar(ExtractFilePath(ParamStr(0)) + 'MultiMonitorTool.exe'), PChar('/disable \\.\DISPLAY' + IntToStr(HMDMonitor)), nil, SW_HIDE);
     if CloseSteamVRAfterTurnOff then begin
       WinExec('taskkill /f /im vrserver.exe', SW_HIDE);
       WinExec('taskkill /f /im vrcompositor.exe', SW_HIDE);
@@ -293,8 +328,8 @@ end;
 
 procedure TMain.AboutBtnClick(Sender: TObject);
 begin
-  Application.MessageBox(PChar(Main.Caption + ' 1.2' + #13#10 +
-  ID_LAST_UPDATE + ' 19.10.2022' + #13#10 +
+  Application.MessageBox(PChar(Main.Caption + ' 1.3' + #13#10 +
+  ID_LAST_UPDATE + ' 01.11.2022' + #13#10 +
   'https://r57zone.github.io' + #13#10 +
   'r57zone@gmail.com'), PChar(ID_ABOUT_TITLE), MB_ICONINFORMATION);
 end;

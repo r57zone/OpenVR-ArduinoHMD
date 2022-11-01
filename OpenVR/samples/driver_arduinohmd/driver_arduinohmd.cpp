@@ -380,6 +380,15 @@ public:
 
 		m_crouchOffset = vr::VRSettings()->GetFloat(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CrouchOffset_Float);
 
+		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, "HMDUpKey", buf, sizeof(buf));
+		m_hmdUpKey = KeyNameToKeyCode(buf);
+
+		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, "HMDDownKey", buf, sizeof(buf));
+		m_hmdDownKey = KeyNameToKeyCode(buf);
+
+		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, "HMDResetKey", buf, sizeof(buf));
+		m_hmdResetKey = KeyNameToKeyCode(buf);
+
 		//DriverLog( "driver_arduinohmd: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_arduinohmd: Model Number: %s\n", m_sModelNumber.c_str() );
 		//DriverLog( "driver_arduinohmd: Window: %d %d %d %d\n", m_nWindowX, m_nWindowY, m_nWindowWidth, m_nWindowHeight );
@@ -608,8 +617,8 @@ public:
 			if ((GetAsyncKeyState(VK_NUMPAD4) & 0x8000) != 0) fPos[0] -= StepPos;
 			if ((GetAsyncKeyState(VK_NUMPAD6) & 0x8000) != 0) fPos[0] += StepPos;
 
-			if ((GetAsyncKeyState(VK_PRIOR) & 0x8000) != 0) fPos[1] += StepPos;
-			if ((GetAsyncKeyState(VK_NEXT) & 0x8000) != 0) fPos[1] -= StepPos;
+			if ((GetAsyncKeyState(m_hmdDownKey) & 0x8000) != 0) fPos[1] += StepPos;
+			if ((GetAsyncKeyState(m_hmdUpKey) & 0x8000) != 0) fPos[1] -= StepPos;
 
 			// Yaw fixing
 			if ((GetAsyncKeyState(VK_NUMPAD1) & 0x8000) != 0 && yprOffset[0] < 180) yprOffset[0] += StepRot;
@@ -619,7 +628,7 @@ public:
 			if ((GetAsyncKeyState(VK_NUMPAD7) & 0x8000) != 0 && yprOffset[2] < 180) yprOffset[2] += StepRot;
 			if ((GetAsyncKeyState(VK_NUMPAD9) & 0x8000) != 0 && yprOffset[2] > -180) yprOffset[2] -= StepRot;
 
-			if ((GetAsyncKeyState(VK_SUBTRACT) & 0x8000) != 0)
+			if ((GetAsyncKeyState(m_hmdResetKey) & 0x8000) != 0)
 			{
 				fPos[0] = 0;
 				fPos[1] = 0;
@@ -637,11 +646,10 @@ public:
 
 			//Set head position tracking
 			pose.vecPosition[0] = fPos[0]; // X
+			pose.vecPosition[1] = fPos[1]; // Z
 
 			if ((GetAsyncKeyState(m_crouchPressKey) & 0x8000) != 0)
-				pose.vecPosition[1] = fPos[1] - m_crouchOffset; // Z
-			else
-				pose.vecPosition[1] = fPos[1]; // Z
+				pose.vecPosition[1] -= m_crouchOffset;
 			
 			pose.vecPosition[2] = fPos[2]; // Y
 		}
@@ -693,6 +701,9 @@ private:
 	int32_t m_crouchPressKey;
 	float m_crouchOffset;
 	int32_t m_centeringKey;
+	int32_t m_hmdUpKey;
+	int32_t m_hmdDownKey;
+	int32_t m_hmdResetKey;
 };
 
 //-----------------------------------------------------------------------------
