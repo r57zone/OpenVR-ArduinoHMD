@@ -9,7 +9,7 @@ Driver for OpenVR / SteamVR, which allows to track the head, using any Arduino r
 ## Setup
 1. Connect the second VR display and set the extended mode in the monitor settings.
 2. Install [SteamVR](https://store.steampowered.com/app/250820/SteamVR/).
-3. Unpack the driver to a folder "...\Steam\steamapps\common\SteamVR\drivers". Configure the necessary parameters (`windowX`, `windowY`, `windowWidth`, `windowHeight` and others), in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\arduinohmd\resources\settings\default.vrsettings". 
+3. Unpack the [driver](https://github.com/r57zone/OpenVR-ArduinoHMD/releases) to a folder "...\Steam\steamapps\common\SteamVR\drivers". Configure the necessary parameters (`windowX`, `windowY`, `windowWidth`, `windowHeight` and others), in the configuration file "...\Steam\steamapps\common\SteamVR\drivers\arduinohmd\resources\settings\default.vrsettings". 
 4. Launch SteamVR and in the SteamVR status window click -> Room Settings -> Small Room -> Calibration -> 170 cm. The SteamVR demo can be closed, and the launch of SteamVR Home can be disabled in the SteamVR settings.
 5. Put on the HMD, if necessary, centering them with key (by default, `Numpad 5` or `CTRL + ALT + R`, can change the key in the configuration file by typing [the desired key name](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)).
 
@@ -45,6 +45,7 @@ DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.
 ZoomHeight, ZoomWidth | Scaling factors of stereo images.
 FOV | Degree of field of view. You can zoom in, depending on the VR headset lenses.
+ipd | Interpupillary distance.
 displayFrequency | Screen refresh rate.
 renderWidth, renderHeight | Image rendering resolution for one eye.
 windowWidth, windowHeight | Height and width of the displayed window.
