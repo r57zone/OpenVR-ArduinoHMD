@@ -57,16 +57,16 @@ inline void HmdMatrix_SetIdentity( HmdMatrix34_t *pMatrix )
 
 
 // keys for use with the settings API
-static const char * const k_pch_steamvr_Section = "steamvr";
-static const char * const k_pch_arduinoHMD_SerialNumber_String = "serialNumber";
-static const char * const k_pch_arduinoHMD_ModelNumber_String = "modelNumber";
-static const char * const k_pch_arduinoHMD_WindowX_Int32 = "windowX";
-static const char * const k_pch_arduinoHMD_WindowY_Int32 = "windowY";
+static const char * const k_pch_steamvr_Section = "SteamVR";
+static const char * const k_pch_arduinoHMD_SerialNumber_String = "SerialNumber";
+static const char * const k_pch_arduinoHMD_ModelNumber_String = "ModelNumber";
+static const char * const k_pch_arduinoHMD_WindowX_Int32 = "WindowX";
+static const char * const k_pch_arduinoHMD_WindowY_Int32 = "WindowY";
 static const char * const k_pch_arduinoHMD_WindowWidth_Int32 = "windowWidth";
 static const char * const k_pch_arduinoHMD_WindowHeight_Int32 = "windowHeight";
-static const char * const k_pch_arduinoHMD_RenderWidth_Int32 = "renderWidth";
-static const char * const k_pch_arduinoHMD_RenderHeight_Int32 = "renderHeight";
-static const char * const k_pch_arduinoHMD_SecondsFromVsyncToPhotons_Float = "secondsFromVsyncToPhotons";
+static const char * const k_pch_arduinoHMD_RenderWidth_Int32 = "RenderWidth";
+static const char * const k_pch_arduinoHMD_RenderHeight_Int32 = "RenderHeight";
+static const char * const k_pch_arduinoHMD_SecondsFromVsyncToPhotons_Float = "SecondsFromVsyncToPhotons";
 static const char * const k_pch_arduinoHMD_DisplayFrequency_Float = "displayFrequency";
 
 // own output settings
@@ -75,14 +75,16 @@ static const char * const k_pch_arduinoHMD_DistortionK2_Float = "DistortionK2";
 static const char * const k_pch_arduinoHMD_ZoomWidth_Float = "ZoomWidth";
 static const char * const k_pch_arduinoHMD_ZoomHeight_Float = "ZoomHeight";
 static const char * const k_pch_arduinoHMD_FOV_Float = "FOV";
+static const char * const k_pch_arduinoHMD_IPD_Float = "IPD";
 static const char * const k_pch_arduinoHMD_DistanceBetweenEyes_Int32 = "DistanceBetweenEyes";
 static const char * const k_pch_arduinoHMD_ScreenOffsetX_Int32 = "ScreenOffsetX";
 static const char * const k_pch_arduinoHMD_Stereo_Bool = "Stereo";
 static const char * const k_pch_arduinoHMD_DebugMode_Bool = "DebugMode";
 
 // arduino hmd settings
-static const char * const k_pch_arduinoHMD_Section = "arduinohmd";
+static const char * const k_pch_arduinoHMD_Section = "ArduinoHMD";
 static const char * const k_pch_arduinoHMD_ArduinoRequire_Bool = "ArduinoRequire";
+static const char * const k_pch_arduinoHMD_ArduinoRotationType_Bool = "RotationType";
 static const char * const k_pch_arduinoHMD_COM_port_Int32 = "COMPort";
 static const char * const k_pch_arduinoHMD_CenteringKey_String = "CenteringKey";
 static const char * const k_pch_arduinoHMD_CrouchPressKey_String = "CrouchPressKey";
@@ -90,15 +92,26 @@ static const char * const k_pch_arduinoHMD_CrouchOffset_Float = "CrouchOffset";
 
 HANDLE hSerial;
 int32_t comPortNumber;
+
+bool ArduinoRotationType = false; // 1 - quat, 0 - ypr
 bool HMDConnected = false, HMDInitCentring = false, ArduinoNotRequire = false;
-float ArduinoIMU[3] = { 0, 0, 0 }, yprOffset[3] = { 0, 0, 0 }; // Yaw, Pitch, Roll
-float LastArduinoIMU[3] = { 0, 0, 0 };
+std::thread *pArduinoReadThread = NULL;
+
+// Position
 double fPos[3] = { 0, 0, 0 };
 
 #define StepPos 0.0033;
 #define StepRot 0.2;
 
-std::thread *pArduinoReadThread = NULL;
+// YPR type
+float ArduinoIMU[3] = { 0, 0, 0 }, yprOffset[3] = { 0, 0, 0 }; // Yaw, Pitch, Roll
+float LastArduinoIMU[3] = { 0, 0, 0 };
+
+// Quaternion type
+struct QuaternionF {
+	float w, x, y, z;
+};
+QuaternionF ArduinoIMUQuat = { 0, 0, 0, 0 }, HMDQuatOffset = { 0, 0, 0, 0 }, LastArduinoIMUQuat = { 0, 0, 0, 0 };
 
 double DegToRad(double f) {
 	return f * (3.14159265358979323846 / 180);
@@ -142,11 +155,32 @@ bool CorrectAngleValue(float Value)
 		return false;
 }
 
+bool CorrectQuatValue(float Value)
+{
+	if (Value > 1 || Value < -1)
+		return false;
+	else
+		return true;
+}
+
 void SetCentering()
 {
-	yprOffset[0] = ArduinoIMU[0];
-	yprOffset[1] = ArduinoIMU[1];
-	yprOffset[2] = ArduinoIMU[2];
+	if (ArduinoRotationType == false) {
+		yprOffset[0] = ArduinoIMU[0];
+		yprOffset[1] = ArduinoIMU[1];
+		yprOffset[2] = ArduinoIMU[2];
+	}
+	else {
+		float length = std::sqrt(ArduinoIMUQuat.x * ArduinoIMUQuat.x + ArduinoIMUQuat.y * ArduinoIMUQuat.y + ArduinoIMUQuat.z * ArduinoIMUQuat.z + ArduinoIMUQuat.w * ArduinoIMUQuat.w);
+		ArduinoIMUQuat.w /= length;
+		ArduinoIMUQuat.x /= length;
+		ArduinoIMUQuat.y /= length;
+		ArduinoIMUQuat.z /= length;
+		HMDQuatOffset.w = ArduinoIMUQuat.w;
+		HMDQuatOffset.x = ArduinoIMUQuat.x;
+		HMDQuatOffset.z = ArduinoIMUQuat.y;
+		HMDQuatOffset.z = ArduinoIMUQuat.z;
+	}
 }
 
 void ArduinoIMURead()
@@ -154,28 +188,61 @@ void ArduinoIMURead()
 	DWORD bytesRead;
 
 	while (HMDConnected) {
-		ReadFile(hSerial, &ArduinoIMU, sizeof(ArduinoIMU), &bytesRead, 0);
 
-		if (CorrectAngleValue(ArduinoIMU[0]) == false || CorrectAngleValue(ArduinoIMU[1]) == false || CorrectAngleValue(ArduinoIMU[2]) == false)
-		{
-			// last correct values
-			ArduinoIMU[0] = LastArduinoIMU[0];
-			ArduinoIMU[1] = LastArduinoIMU[1];
-			ArduinoIMU[2] = LastArduinoIMU[2];
+		// YPR
+		if (ArduinoRotationType == false) {
+			ReadFile(hSerial, &ArduinoIMU, sizeof(ArduinoIMU), &bytesRead, 0);
 
-			PurgeComm(hSerial, PURGE_TXCLEAR | PURGE_RXCLEAR);
-		}
-		else if (CorrectAngleValue(ArduinoIMU[0]) && CorrectAngleValue(ArduinoIMU[1]) && CorrectAngleValue(ArduinoIMU[2])) // save last correct values
-		{
-			LastArduinoIMU[0] = ArduinoIMU[0];
-			LastArduinoIMU[1] = ArduinoIMU[1];
-			LastArduinoIMU[2] = ArduinoIMU[2];
+			if (CorrectAngleValue(ArduinoIMU[0]) == false || CorrectAngleValue(ArduinoIMU[1]) == false || CorrectAngleValue(ArduinoIMU[2]) == false)
+			{
+				// last correct values
+				ArduinoIMU[0] = LastArduinoIMU[0];
+				ArduinoIMU[1] = LastArduinoIMU[1];
+				ArduinoIMU[2] = LastArduinoIMU[2];
 
-			if (HMDInitCentring == false)
-				if (ArduinoIMU[0] != 0 || ArduinoIMU[1] != 0 || ArduinoIMU[2] != 0) {
-					SetCentering();
-					HMDInitCentring = true;
-				}
+				PurgeComm(hSerial, PURGE_TXCLEAR | PURGE_RXCLEAR);
+			}
+			else if (CorrectAngleValue(ArduinoIMU[0]) && CorrectAngleValue(ArduinoIMU[1]) && CorrectAngleValue(ArduinoIMU[2])) // save last correct values
+			{
+				LastArduinoIMU[0] = ArduinoIMU[0];
+				LastArduinoIMU[1] = ArduinoIMU[1];
+				LastArduinoIMU[2] = ArduinoIMU[2];
+
+				if (HMDInitCentring == false)
+					if (ArduinoIMU[0] != 0 || ArduinoIMU[1] != 0 || ArduinoIMU[2] != 0) {
+						SetCentering();
+						HMDInitCentring = true;
+					}
+			}
+
+		// Quaternion
+		} else {
+			ReadFile(hSerial, &ArduinoIMUQuat, sizeof(ArduinoIMUQuat), &bytesRead, 0);
+
+			if (CorrectQuatValue(ArduinoIMUQuat.w) == false || CorrectQuatValue(ArduinoIMUQuat.x) == false || CorrectQuatValue(ArduinoIMUQuat.y) == false || CorrectQuatValue(ArduinoIMUQuat.z) == false)
+			{
+				// last correct values
+				ArduinoIMUQuat.w = LastArduinoIMUQuat.w;
+				ArduinoIMUQuat.x = LastArduinoIMUQuat.x;
+				ArduinoIMUQuat.y = LastArduinoIMUQuat.y;
+				ArduinoIMUQuat.z = LastArduinoIMUQuat.z;
+
+				PurgeComm(hSerial, PURGE_TXCLEAR | PURGE_RXCLEAR);
+			}
+			else if (CorrectQuatValue(ArduinoIMUQuat.w) && CorrectQuatValue(ArduinoIMUQuat.x) && CorrectQuatValue(ArduinoIMUQuat.y) && CorrectQuatValue(ArduinoIMUQuat.z)) // save last correct values
+			{
+				LastArduinoIMUQuat.w = ArduinoIMUQuat.w;
+				LastArduinoIMUQuat.x = ArduinoIMUQuat.x;
+				LastArduinoIMUQuat.y = ArduinoIMUQuat.y;
+				LastArduinoIMUQuat.z = ArduinoIMUQuat.z;
+
+				if (HMDInitCentring == false)
+					if (ArduinoIMUQuat.w != 0 || ArduinoIMUQuat.x != 0 || ArduinoIMUQuat.y != 0 || ArduinoIMUQuat.z != 0) {
+						SetCentering();
+						HMDInitCentring = true;
+					}
+			}
+
 		}
 
 		if (bytesRead == 0) Sleep(1);
@@ -344,7 +411,7 @@ public:
 		m_ulPropertyContainer = vr::k_ulInvalidPropertyContainer;
 
 		//DriverLog( "Using settings values\n" );
-		m_flIPD = vr::VRSettings()->GetFloat(k_pch_steamvr_Section, k_pch_SteamVR_IPD_Float );
+		m_flIPD = vr::VRSettings()->GetFloat(k_pch_steamvr_Section, k_pch_arduinoHMD_IPD_Float);
 
 		char buf[1024];
 		vr::VRSettings()->GetString(k_pch_steamvr_Section, k_pch_arduinoHMD_SerialNumber_String, buf, sizeof( buf ) );
@@ -661,9 +728,17 @@ public:
 				SetCentering();
 
 			// Set head tracking rotation
-			pose.qRotation = EulerAngleToQuaternion(DegToRad( OffsetYPR(ArduinoIMU[2], yprOffset[2]) ),
-													DegToRad( OffsetYPR(ArduinoIMU[0], yprOffset[0]) * -1 ),
-													DegToRad( OffsetYPR(ArduinoIMU[1], yprOffset[1]) * -1 ));
+			if (ArduinoRotationType == false) { // YPR
+				pose.qRotation = EulerAngleToQuaternion(DegToRad( OffsetYPR(ArduinoIMU[2], yprOffset[2]) ),
+														DegToRad( OffsetYPR(ArduinoIMU[0], yprOffset[0]) * -1 ),
+														DegToRad( OffsetYPR(ArduinoIMU[1], yprOffset[1]) * -1 ));
+			}  else { // Quaternion
+				// Centered
+				pose.qRotation.w = ArduinoIMUQuat.w * LastArduinoIMUQuat.w - ArduinoIMUQuat.x * LastArduinoIMUQuat.x - ArduinoIMUQuat.y * LastArduinoIMUQuat.y - ArduinoIMUQuat.z * LastArduinoIMUQuat.z;
+				pose.qRotation.x = ArduinoIMUQuat.w * LastArduinoIMUQuat.x + ArduinoIMUQuat.x * LastArduinoIMUQuat.w + ArduinoIMUQuat.y * LastArduinoIMUQuat.z - ArduinoIMUQuat.z * LastArduinoIMUQuat.y;
+				pose.qRotation.y = ArduinoIMUQuat.w * LastArduinoIMUQuat.y - ArduinoIMUQuat.x * LastArduinoIMUQuat.z + ArduinoIMUQuat.y * LastArduinoIMUQuat.w + ArduinoIMUQuat.z * LastArduinoIMUQuat.x;
+				pose.qRotation.z = ArduinoIMUQuat.w * LastArduinoIMUQuat.z + ArduinoIMUQuat.x * LastArduinoIMUQuat.y - ArduinoIMUQuat.y * LastArduinoIMUQuat.x + ArduinoIMUQuat.z * LastArduinoIMUQuat.w;
+			}
 
 			//Set head position tracking
 			pose.vecPosition[0] = fPos[0]; // X
@@ -754,6 +829,7 @@ EVRInitError CServerDriver::Init( vr::IVRDriverContext *pDriverContext )
 	VR_INIT_SERVER_DRIVER_CONTEXT( pDriverContext );
 	//InitDriverLog( vr::VRDriverLog() );
 
+	ArduinoRotationType = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRotationType_Bool);
 	ArduinoNotRequire = !vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRequire_Bool);
 	comPortNumber = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_COM_port_Int32);
 	

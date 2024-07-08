@@ -20,7 +20,7 @@ If you are using an Android smartphone, then it will probably be easier to use [
 You can quick turn on and turn off the extended VR monitor of the HMD using the `HMD Assistant` utility or [MultiMonitorTool](https://www.nirsoft.net/utils/multi_monitor_tool.html).
 
 ## Arduino & rotation trackers
-To track the turns of the head, you will need to buy [Arduino Nano](http://ali.pub/2oy73f) and connect a board with rotation sensors to it, for example, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 or any other if there is a firmware with the output of Yaw, Pitch, Roll values and calibration. The data output is binary (3 float values), an example can be viewed [here](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino).
+To track the turns of the head, you will need to buy [Arduino Nano](http://ali.pub/2oy73f) and connect a board with rotation sensors to it, for example, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 or any other firmware with output of three float values yaw, pitch, roll or 4 float values of quaternion w, x, y, z and calibration. The data output is binary (3 float or 4 float values), an example can be viewed [here](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino). The output speed should be `115200`.
 
 There is a ready-made Arduino firmware for the [MPU 3200 GY-85](http://alli.pub/5wxnyl), it is called [Razor AHRS](https://github.com/Razor-AHRS/razor-9dof-ahrs/tree/master/Arduino). Along with it comes a program for calibration and demonstration. After calibration, replace the file "Output.ino", in the firmware folder, with [this](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Razor_AHRS/Output.ino).
 It is important to note here that there are new revisions of GY-85 that are incompatible with this firmware. The following sensors are supported by the firmware: the ADXL345 accelerometer, the ITG-3200 gyroscope and the HMC5843, HMC5883L magnetometers. The calibration instructions can be found on [youtube](https://www.youtube.com/watch?v=J7K_TnzQBZk).
@@ -31,8 +31,6 @@ There is a ready-made Arduino firmware for [MPU 6050 GY-521](http://ali.pub/2oy7
 
 ![](https://user-images.githubusercontent.com/9499881/52521728-e200dc80-2c94-11e9-9628-68ea3ef3dacd.png)
 
-The speed should be changed to `115200` if a different one is set by default.
-
 ## Configuration file options
 Name | Description
 ------------ | -------------
@@ -40,16 +38,16 @@ COMPort | The number of the Arduino COM port can be found in the Devices Manager
 CenteringKey | The code of the picture centering key, you can change the key in the configuration file by typing [the desired name code](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)).
 CrouchPressKey | The code of the crouch key, you can change the key in the configuration file by typing [the desired name code](https://github.com/r57zone/DualShock4-emulator/blob/master/BINDINGS.md)). It is necessary for communication with other drivers, for example, using Razer Hydra controllers and using [this driver](https://github.com/r57zone/Razer-Hydra-SteamVR-driver) you can crouch.
 CrouchOffset | The height of the crouch at the press of a button.
+FOV | Degree of field of view. You can zoom in, depending on the VR headset lenses.
+IPD | Interpupillary distance.
 DistanceBetweenEyes | The distance between stereo images, the larger the closer.
 DistortionK1, DistortionK2 | Lens distortion factors.
 ScreenOffsetX | Horizontal image shift.
 ZoomHeight, ZoomWidth | Scaling factors of stereo images.
-FOV | Degree of field of view. You can zoom in, depending on the VR headset lenses.
-ipd | Interpupillary distance.
-displayFrequency | Screen refresh rate.
-renderWidth, renderHeight | Image rendering resolution for one eye.
-windowWidth, windowHeight | Height and width of the displayed window.
-windowX, windowY | Window offset is required for display on other monitors. For example, to display on the second display, which is displayed on the right, you need to specify the value 1920 (provided that the first display has a resolution of 1920 by 1080). The exact data can be viewed using the [MultiMonitorTool utility](https://www.nirsoft.net/utils/multi_monitor_tool.html), and also with it you can turn off and turn on the second monitor via a bat file.
+DisplayFrequency | Screen refresh rate.
+RenderWidth, RenderHeight | Image rendering resolution for one eye.
+WindowWidth, WindowHeight | Height and width of the displayed window.
+WindowX, WindowY | Window offset is required for display on other monitors. For example, to display on the second display, which is displayed on the right, you need to specify the value 1920 (provided that the first display has a resolution of 1920 by 1080). The exact data can be viewed using the [MultiMonitorTool utility](https://www.nirsoft.net/utils/multi_monitor_tool.html), and also with it you can turn off and turn on the second monitor via a bat file.
 DebugMode | Debug mode, locked at 30 FPS. After checking, it is recommended to set it to `false` (disable).
 ArduinoRequire | Requires a connected Arduino to start the driver. The parameter is necessary for quick tests of controllers, so as not to connect and put on a hmd for tests. To disable, change to `false`.
 
