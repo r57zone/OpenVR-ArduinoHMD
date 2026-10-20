@@ -1,0 +1,27 @@
+{
+  "ArduinoHMD": {
+    "ArduinoRequire": false
+  },
+  "SteamVR": {
+    "DebugMode": true,
+    "Stereo": true,
+    "DistanceBetweenEyes": 0,
+    "DistortionK1": 0.0,
+    "DistortionK2": 0.0,
+    "ScreenOffsetX": 0,
+    "ZoomHeight": 1.0,
+    "ZoomWidth": 1.0,
+    "FOV": 57.296,
+    "IPD": 0.065,
+    "displayFrequency": 60,
+    "RenderHeight": 1080,
+    "RenderWidth": 960,
+    "SecondsFromVsyncToPhotons": 0.005,
+    "SerialNumber": "ArduinoHMD-Linux-test",
+    "ModelNumber": "ArduinoHMD",
+    "windowHeight": 1080,
+    "windowWidth": 1920,
+    "WindowX": 0,
+    "WindowY": 0
+  }
+}

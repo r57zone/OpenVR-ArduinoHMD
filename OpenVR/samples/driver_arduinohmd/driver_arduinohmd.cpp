@@ -2,19 +2,27 @@
 //=============== Changed by r57zone (https://github.com/r57zone) ===============
 
 #include <openvr_driver.h>
-#include <atlstr.h> 
-//#include "driverlog.h"
+#include "driverlog.h"
+#include <cmath>
+#include <cstring>
+#include <string>
 
 #include <vector>
 #include <thread>
 #include <chrono>
 #include <algorithm>
 
-#if defined( _WINDOWS )
+#if defined( _WIN32 )
 #include <windows.h>
+#include <atlstr.h>
+#else
+#include <strings.h>
+#define _stricmp strcasecmp
 #endif
 
+#if defined( _MSC_VER )
 #pragma warning (disable: 4996)
+#endif
 
 using namespace vr;
 
@@ -90,7 +98,9 @@ static const char * const k_pch_arduinoHMD_CenteringKey_String = "CenteringKey";
 static const char * const k_pch_arduinoHMD_CrouchPressKey_String = "CrouchPressKey";
 static const char * const k_pch_arduinoHMD_CrouchOffset_Float = "CrouchOffset";
 
+#if defined( _WIN32 )
 HANDLE hSerial;
+#endif
 int32_t comPortNumber;
 
 bool ArduinoRotationType = false; // 1 - quat, 0 - ypr
@@ -183,6 +193,7 @@ void SetCentering()
 	}
 }
 
+#if defined( _WIN32 )
 void ArduinoIMURead()
 {
 	DWORD bytesRead;
@@ -399,6 +410,8 @@ int KeyNameToKeyCode(std::string KeyName) {
 	else return 0;
 }
 
+#endif // _WIN32: serial tracking and global hotkeys
+
 //-----------------------------------------------------------------------------
 // Purpose:
 //-----------------------------------------------------------------------------
@@ -439,6 +452,7 @@ public:
 		m_bStereoMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_Stereo_Bool);
 		m_bDebugMode = vr::VRSettings()->GetBool(k_pch_steamvr_Section, k_pch_arduinoHMD_DebugMode_Bool);
 
+#if defined( _WIN32 )
 		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_CenteringKey_String, buf, sizeof(buf));
 		m_centeringKey = KeyNameToKeyCode(buf);
 
@@ -455,6 +469,7 @@ public:
 
 		vr::VRSettings()->GetString(k_pch_arduinoHMD_Section, "HMDResetKey", buf, sizeof(buf));
 		m_hmdResetKey = KeyNameToKeyCode(buf);
+#endif
 
 		//DriverLog( "driver_arduinohmd: Serial Number: %s\n", m_sSerialNumber.c_str() );
 		//DriverLog( "driver_arduinohmd: Model Number: %s\n", m_sModelNumber.c_str() );
@@ -492,7 +507,11 @@ public:
 		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_HasCamera_Bool, false);
 		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_Firmware_ForceUpdateRequired_Bool, false);
 		vr::VRProperties()->SetStringProperty(m_ulPropertyContainer, vr::Prop_RegisteredDeviceType_String, "HMD");
+#if defined( _WIN32 )
 		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_NeverTracked_Bool, false);
+#else
+		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_NeverTracked_Bool, true);
+#endif
 		vr::VRProperties()->SetBoolProperty(m_ulPropertyContainer, vr::Prop_Identifiable_Bool, false);
 
 		vr::VRProperties()->SetFloatProperty( m_ulPropertyContainer, Prop_UserIpdMeters_Float, m_flIPD );
@@ -696,6 +715,7 @@ public:
 		pose.poseTimeOffset = 0;
 		pose.willDriftInYaw = false;
 
+#if defined( _WIN32 )
 		if (HMDConnected || ArduinoNotRequire) {
 
 			// Pos
@@ -749,6 +769,11 @@ public:
 			
 			pose.vecPosition[2] = fPos[2]; // Y
 		}
+#else
+		// Display-only Linux mode has no sensor or keyboard pose source.
+		pose.qRotation = HmdQuaternion_Init(1, 0, 0, 0);
+		pose.shouldApplyHeadModel = false;
+#endif
 
 		return pose;
 	}
@@ -827,13 +852,26 @@ CServerDriver g_serverDriverNull;
 EVRInitError CServerDriver::Init( vr::IVRDriverContext *pDriverContext )
 {
 	VR_INIT_SERVER_DRIVER_CONTEXT( pDriverContext );
-	//InitDriverLog( vr::VRDriverLog() );
+	InitDriverLog( vr::VRDriverLog() );
 
+#if defined( _WIN32 )
 	ArduinoRotationType = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRotationType_Bool);
 	ArduinoNotRequire = !vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRequire_Bool);
 	comPortNumber = vr::VRSettings()->GetInt32(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_COM_port_Int32);
 	
 	ArduinoIMUStart();
+#else
+	vr::EVRSettingsError settingsError = vr::VRSettingsError_None;
+	ArduinoNotRequire = !vr::VRSettings()->GetBool(k_pch_arduinoHMD_Section, k_pch_arduinoHMD_ArduinoRequire_Bool, &settingsError);
+	if (settingsError != vr::VRSettingsError_None || !ArduinoNotRequire)
+	{
+		DriverLog("Linux supports display-only mode: set ArduinoHMD.ArduinoRequire to false. Serial tracking and hotkeys are not available.");
+		CleanupDriverLog();
+		VR_CLEANUP_SERVER_DRIVER_CONTEXT();
+		return VRInitError_Driver_Failed;
+	}
+	DriverLog("Starting Linux display-only mode (fixed pose, no serial tracking or hotkeys).");
+#endif
 
 	if (HMDConnected || ArduinoNotRequire)
 	{
@@ -846,8 +884,9 @@ EVRInitError CServerDriver::Init( vr::IVRDriverContext *pDriverContext )
 
 void CServerDriver::Cleanup() 
 {
-	//CleanupDriverLog();
+	CleanupDriverLog();
 
+#if defined( _WIN32 )
 	if (HMDConnected) {
 		HMDConnected = false;
 		pArduinoReadThread->join();
@@ -855,11 +894,16 @@ void CServerDriver::Cleanup()
 		pArduinoReadThread = nullptr;
 		CloseHandle(hSerial);
 	}
+#endif
 
 	if (HMDConnected || ArduinoNotRequire) {
 		delete m_pNullHmdLatest;
 		m_pNullHmdLatest = NULL;
 	}
+#if !defined( _WIN32 )
+	ArduinoNotRequire = false;
+	VR_CLEANUP_SERVER_DRIVER_CONTEXT();
+#endif
 }
 
 

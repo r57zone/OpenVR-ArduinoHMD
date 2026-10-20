@@ -19,6 +19,55 @@ If you are using an Android smartphone, then it will probably be easier to use [
 
 You can quick turn on and turn off the extended VR monitor of the HMD using the `HMD Assistant` utility or [MultiMonitorTool](https://www.nirsoft.net/utils/multi_monitor_tool.html).
 
+## Linux display-only build (experimental)
+
+The Linux x86-64 build supports a fixed view with `ArduinoRequire: false`.
+It exposes the existing display geometry and lens-distortion functions to SteamVR,
+but does not read the Arduino, track the head, or implement the Windows global
+hotkeys or HMD Assistant. Requiring an Arduino fails with a driver-log message.
+The Visual Studio project remains the Windows build path.
+
+Install CMake 3.16 or newer and a C++ compiler, then run from this source tree:
+
+```sh
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+ctest --test-dir build --output-on-failure
+cmake --install build --prefix "$HOME/.local/share/openvr-drivers/arduinohmd"
+```
+
+This creates `bin/linux64/driver_arduinohmd.so`, a driver manifest, and
+`resources/settings/default.vrsettings` beneath the chosen prefix. It does not
+register the driver or modify SteamVR's installation. Reinstalling replaces this
+settings file; keep a copy of any calibration changes.
+
+For an opt-in SteamVR experiment, close SteamVR, then use its `bin/linux64/vrpathreg`
+program to register the **absolute path to the installed driver directory**:
+
+```sh
+# Run these commands from your actual SteamVR installation directory.
+./bin/linux64/vrpathreg adddriver "$HOME/.local/share/openvr-drivers/arduinohmd"
+# To undo registration, close SteamVR and run:
+./bin/linux64/vrpathreg removedriver "$HOME/.local/share/openvr-drivers/arduinohmd"
+```
+
+The supplied Linux settings are a diagnostic example: 1920x1080 output, 960x1080
+per eye, no distortion, unit zoom, and `DebugMode: true` (the existing 30 FPS debug
+mode). They are **not a calibrated headset profile**. Set the panel bounds, per-eye
+render resolution and optical parameters for the actual device before viewing
+through lenses. Disable debug mode when measuring normal presentation cadence.
+Lens correction must be applied once, by the component presenting the image.
+
+The test loads the actual shared module in a fake OpenVR host. It checks interface
+negotiation, required/missing-tracker refusal, fixed pose, eye viewports, radial
+distortion and repeated activation/cleanup. It does not run SteamVR, scan out an
+HDMI image, test Wayland/X11 compatibility, or establish optical comfort or latency.
+This driver is an OpenVR plugin, not a KWin output plugin or a desktop-capture app.
+
+The build approach follows the Linux work in
+[OpenVR-driver-for-DIY #2](https://github.com/r57zone/OpenVR-driver-for-DIY/pull/2)
+by Ralf Habacker. Head tracking is a separate next step.
+
 ## Arduino & rotation trackers
 To track the turns of the head, you will need to buy [Arduino Nano](http://ali.pub/2oy73f) and connect a board with rotation sensors to it, for example, [MPU 6050 GY-521](http://ali.pub/2oy76c), MPU 9250, MPU 3200 GY-85 or any other firmware with output of three float values yaw, pitch, roll or 4 float values of quaternion w, x, y, z and calibration. The data output is binary (3 float or 4 float values), an example can be viewed [here](https://github.com/TrueOpenVR/TrueOpenVR-DIY/blob/master/HMD/Arduino/Arduino.Output.Bin.ino). The output speed should be `115200`.
 
